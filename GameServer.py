@@ -12,6 +12,11 @@ playerY = 200
 imageX = 0
 imageY = 0
 
+def collision(one, two):
+    cX = one.x + one.w / 2 >= two.x - two.w / 2 and two.x + two.w / 2 >= one.x - one.w / 2
+    cY = one.y + one.h / 2 >= two.y - two.h / 2 and two.y + two.h / 2 >= one.y - one.h / 2
+    return (cX and cY)
+
 def GameThread():
     pygame.init()
 
@@ -49,11 +54,11 @@ def GameThread():
         screen.blit(potato_img, (imageX, imageY))
 
         #put player on screen
-        player.center = (posx, posy)
+        player.center = (playerX, playerY)
         pygame.draw.rect(screen, playerColor, player)
 
         #hitbox of potato
-        #hitbox = pygame.Rect(x, 30, potato_img.get_width(), potato_img.get_height())
+        hitbox = pygame.Rect(0, 30, potato_img.get_width(), potato_img.get_height())
 
         #displays score
         text = font.render('score:', True, (0,0,0))
@@ -61,7 +66,7 @@ def GameThread():
         #imageX += 1
 
         #collision
-        if player.colliderect(imgRect):
+        if collision(player, hitbox):
             print("Collision detected!")
 
         
