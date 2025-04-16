@@ -5,8 +5,8 @@ import sys
 import math
 
 name = "test"
-posx = 300
-posy = 200
+playerX = 300
+playerY = 200
 
 # position of falling item
 imageX = 0
@@ -18,9 +18,10 @@ def GameThread():
     screen = pygame.display.set_mode((640,640))
 
     #assign image
-    potato_img = pygame.image.load('potato2.png')
+    potato_img = pygame.image.load('potato2.png').convert_alpha()
+    player_img = pygame.image.load("basket.png").convert_alpha()
     #create rect for image
-    imgRect = potato_img.get_rect(topleft=(imageX, imageY))
+
 
     #player start position
     player = pygame.Rect(0, 0, 25, 25)
