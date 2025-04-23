@@ -7,7 +7,9 @@ import random
 
 name = "test"
 playerX = 300
-playerY = 200
+playerY = 500
+
+speed = 1
 
 
 
@@ -52,14 +54,20 @@ def GameThread():
     imageX = random.randint(1, 630)
     imageY = 0
 
+    bg = pygame.image.load("potatosBG.jpg")
+    bg = pygame.transform.scale(bg, (bg.get_width() * 0.2, bg.get_height()* 0.15))
+
     #incr speed of falling potato
-    speed = 1
 
     running = True
     while running:
 
+        global speed
         #background color
+
+        
         screen.fill((255,255,255))
+        screen.blit(bg,(0,0))
 
         #put image on screen
         screen.blit(potato_img, (imageX, imageY))
@@ -72,21 +80,22 @@ def GameThread():
 
         #hitbox of potato
         hitbox = pygame.Rect(imageX + 35, imageY + 19, potato_img.get_width() - 70, potato_img.get_height() - 45)
+
         #shows the hitbox on screen
         #visiblePotatoHitbox =pygame.Rect(imageX + 35, imageY + 19, potato_img.get_width() - 70, potato_img.get_height() - 45)
         #pygame.draw.rect(screen, playerColor, visiblePotatoHitbox)
 
         #hitbox of player
         playerHitbox = pygame.Rect(playerX + 20, playerY + 15, player_img.get_width() * .68, player_img.get_height() * .72)
+
         #shows the hitbox on screen
         #visiblePlayerHitbox =pygame.Rect(playerX + 20, playerY + 15, player_img.get_width() * .68, player_img.get_height() * .72)
         #pygame.draw.rect(screen, playerColor, visiblePlayerHitbox)
 
         #displays score
-        displayScore = font.render(str(score), True, (0,0,0))
+        displayScore = font.render(str(score), True, (0,255,0))
         screen.blit(displayScore, (300,100))
 
-        
         # falling potato speed incr
         imageY += 1 * speed
 
@@ -97,7 +106,7 @@ def GameThread():
             if(imageY >= 1000):
                 #make location of potato
                 imageY = 0
-                imageX = random.randint(1, 630)
+                imageX = random.randint(1, 600)
 
                 score += 1
                 speed += 0.25
@@ -106,7 +115,7 @@ def GameThread():
         if(imageY >= 800):
                 #make location of potato
                 imageY = 0
-                imageX = random.randint(1, 630)
+                imageX = random.randint(1, 600)
 
         
         for event in pygame.event.get():
@@ -153,13 +162,13 @@ def ServerThread():
         
         print("from connected user: " + str(data))
         if(data == 'w'):
-            playerY -= 10
+            playerY -= 10 * speed
         if(data == 's'):
-            playerY += 10
+            playerY += 10 * speed
         if(data == 'a'):
-            playerX -= 10
+            playerX -= 10 * speed
         if(data == 'd'):
-            playerX += 10
+            playerX += 10 * speed
     conn.close()  # close the connection
 
 
