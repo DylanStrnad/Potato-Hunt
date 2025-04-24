@@ -156,6 +156,8 @@ def ServerThread():
     global playerY
     global playerX
 
+    global ending
+
     global conn
     global address
     global t1
@@ -198,6 +200,7 @@ def ServerThread():
         if(data == 'q'):
             break
     print("Server disabled")
+    ending = True
     conn.close()  # close the connection
 
 t2 = threading.Thread(target=ServerThread, args=[])
