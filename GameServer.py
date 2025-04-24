@@ -52,15 +52,19 @@ def GameThread():
         font = pygame.font.Font(None, size = 30)
 
         # position of falling item
-        imageX = random.randint(1, 630)
+        imageX = random.randint(-35, 545)
         imageY = 0
+        
+        bg = pygame.image.load("potatosBG.jpg")
+        bg = pygame.transform.scale(bg, (bg.get_width() * 0.2, bg.get_height()* 0.15))
 
         running = True
         while running == True and ending == False:
             global speed
 
-            #background color
+            #background
             screen.fill((255,255,255))
+            screen.blit(bg,(0,0))
 
             #put image on screen
             screen.blit(potato_img, (imageX, imageY))
@@ -70,6 +74,10 @@ def GameThread():
             #put player on screen
             player.center = (playerX, playerY)
             #pygame.draw.rect(screen, playerColor, player)
+
+            #displays score
+            displayScore = font.render("Score: " + str(score), True, (0,255,0))
+            screen.blit(displayScore, (300,100))
 
             #hitbox of potato
             hitbox = pygame.Rect(imageX + 35, imageY - 19, potato_img.get_width() - 70, potato_img.get_height() - 45)
@@ -83,11 +91,6 @@ def GameThread():
             #visiblePlayerHitbox =pygame.Rect(playerX + 20, playerY + 15, player_img.get_width() * .68, player_img.get_height() * .72)
             #pygame.draw.rect(screen, playerColor, visiblePlayerHitbox)
 
-            #displays score
-            displayScore = font.render("Score: " + str(score), True, (0,255,0))
-            screen.blit(displayScore, (300,100))
-
-            
             # falling potato speed incr
             imageY += 1 * speed
 
@@ -112,26 +115,26 @@ def GameThread():
                     running = False
                     continue
 
-            
+
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_q:
                         running = False
                         ending = True
                         break
-            
+
             pygame.display.flip()
             if ending == False: clock.tick(60)
-        
+
         while ending == False:
             screen.fill((255, 255, 255))
 
-            gameOverDisplay = font.render("GAME OVER", True, (0, 255, 0))
-            screen.blit(gameOverDisplay, (300, 400))
-            displayScore = font.render("Final Score: " + str(score), True, (0,255,0))
-            screen.blit(displayScore, (300, 500))
-            quitButtonText = font.render("Press q to Quit", True, (0, 255, 0))
-            screen.blit(quitButtonText, (300, 600))
+            gameOverDisplay = font.render("GAME OVER", True, (0, 0, 0))
+            screen.blit(gameOverDisplay, (260, 295))
+            displayScore = font.render("Final Score: " + str(score), True, (0,0,0))
+            screen.blit(displayScore, (260, 320))
+            quitButtonText = font.render("Press q to Quit", True, (0, 0, 0))
+            screen.blit(quitButtonText, (260, 345))
 
             pygame.event.get()
             pygame.display.flip()
@@ -152,6 +155,8 @@ t1 = threading.Thread(target=GameThread, args=[])
 def ServerThread():
     global playerY
     global playerX
+
+    global ending
 
     global conn
     global address
@@ -195,6 +200,7 @@ def ServerThread():
         if(data == 'q'):
             break
     print("Server disabled")
+    ending = True
     conn.close()  # close the connection
 
 t2 = threading.Thread(target=ServerThread, args=[])
