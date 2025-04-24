@@ -4,15 +4,18 @@ import socket
 import sys
 import math
 import random
+import time
 
-name = "test"
 playerX = 300
 playerY = 500
-
 speed = 1
 
+conn = -1
+address = -1
 
+ending = False
 
+clock = pygame.time.Clock()
 
 def collision(one, two):
     cX = one.x + one.w / 2 >= two.x - two.w / 2 and two.x + two.w / 2 >= one.x - one.w / 2
@@ -20,122 +23,143 @@ def collision(one, two):
     return (cX and cY)
 
 def GameThread():
+    global conn
+    global address
+    global ending
+    global clock
 
-    pygame.init()
+    if conn != -1 and address != -1:
+        pygame.init()
 
-    screen = pygame.display.set_mode((640,640))
+        screen = pygame.display.set_mode((640,640))
 
-    #assign image
-    potato_img = pygame.image.load("potato.png").convert_alpha()
-    player_img = pygame.image.load("basket.png").convert_alpha()
-    #create rect for image
+        #assign image
+        potato_img = pygame.image.load("potato.png").convert_alpha()
+        player_img = pygame.image.load("basket.png").convert_alpha()
+        #create rect for image
 
+        #player start position
+        player = pygame.Rect(0, 0, 25, 25)
+        playerColor = (0,255,0)
 
-    #player start position
-    player = pygame.Rect(0, 0, 25, 25)
-    playerColor = (0,255,0)
+        #scale image
+        potato_img = pygame.transform.scale(potato_img, (potato_img.get_width() * 0.05, potato_img.get_height() * 0.05))
 
-    #scale image
-    potato_img = pygame.transform.scale(potato_img, (potato_img.get_width() * 0.05, potato_img.get_height() * 0.05))
+        player_img = pygame.transform.scale(player_img, (potato_img.get_width() * 1, potato_img.get_height() * 1))
 
-    player_img = pygame.transform.scale(player_img, (potato_img.get_width() * 1, potato_img.get_height() * 1))
+        score = 0
 
-    clock = pygame.time.Clock()
+        font = pygame.font.Font(None, size = 30)
 
-    
-
-
-
-    score = 0
-
-    font = pygame.font.Font(None, size = 30)
-
-    # position of falling item
-    imageX = random.randint(1, 630)
-    imageY = 0
-
-    bg = pygame.image.load("potatosBG.jpg")
-    bg = pygame.transform.scale(bg, (bg.get_width() * 0.2, bg.get_height()* 0.15))
-
-    #incr speed of falling potato
-
-    running = True
-    while running:
-
-        global speed
-        #background color
-
+        # position of falling item
+        imageX = random.randint(1, 630)
+        imageY = 0
         
-        screen.fill((255,255,255))
-        screen.blit(bg,(0,0))
+        bg = pygame.image.load("potatosBG.jpg")
+        bg = pygame.transform.scale(bg, (bg.get_width() * 0.2, bg.get_height()* 0.15))
 
-        #put image on screen
-        screen.blit(potato_img, (imageX, imageY))
+        running = True
+        while running == True and ending == False:
+            global speed
 
-        screen.blit(player_img, (playerX, playerY))
+            #background
+            screen.fill((255,255,255))
+            screen.blit(bg,(0,0))
+            
+            #displays score
+            displayScore = font.render("Score: " + str(score), True, (0,255,0))
+            screen.blit(displayScore, (300,100))
 
-        #put player on screen
-        player.center = (playerX, playerY)
-        #pygame.draw.rect(screen, playerColor, player)
+            #put image on screen
+            screen.blit(potato_img, (imageX, imageY))
 
-        #hitbox of potato
-        hitbox = pygame.Rect(imageX + 35, imageY + 19, potato_img.get_width() - 70, potato_img.get_height() - 45)
+            screen.blit(player_img, (playerX, playerY))
 
-        #shows the hitbox on screen
-        #visiblePotatoHitbox =pygame.Rect(imageX + 35, imageY + 19, potato_img.get_width() - 70, potato_img.get_height() - 45)
-        #pygame.draw.rect(screen, playerColor, visiblePotatoHitbox)
+            #put player on screen
+            player.center = (playerX, playerY)
+            #pygame.draw.rect(screen, playerColor, player)
 
-        #hitbox of player
-        playerHitbox = pygame.Rect(playerX + 20, playerY + 15, player_img.get_width() * .68, player_img.get_height() * .72)
+            #hitbox of potato
+            hitbox = pygame.Rect(imageX + 35, imageY - 19, potato_img.get_width() - 70, potato_img.get_height() - 45)
+            #shows the hitbox on screen
+            #visiblePotatoHitbox =pygame.Rect(imageX + 35, imageY + 19, potato_img.get_width() - 70, potato_img.get_height() - 45)
+            #pygame.draw.rect(screen, playerColor, visiblePotatoHitbox)
 
-        #shows the hitbox on screen
-        #visiblePlayerHitbox =pygame.Rect(playerX + 20, playerY + 15, player_img.get_width() * .68, player_img.get_height() * .72)
-        #pygame.draw.rect(screen, playerColor, visiblePlayerHitbox)
+            #hitbox of player
+            playerHitbox = pygame.Rect(playerX + 20, playerY + 15, player_img.get_width() * .68, player_img.get_height() * .72)
+            #shows the hitbox on screen
+            #visiblePlayerHitbox =pygame.Rect(playerX + 20, playerY + 15, player_img.get_width() * .68, player_img.get_height() * .72)
+            #pygame.draw.rect(screen, playerColor, visiblePlayerHitbox)
 
-        #displays score
-        displayScore = font.render(str(score), True, (0,255,0))
-        screen.blit(displayScore, (300,100))
+            # falling potato speed incr
+            imageY += 1 * speed
 
-        # falling potato speed incr
-        imageY += 1 * speed
+            #collision
+            if collision(playerHitbox, hitbox):
+                print("Collision detected!")
+                imageY += 1000
+                if(imageY >= 1000):
+                    #make location of potato
+                    imageY = 0
+                    imageX = random.randint(potato_img.get_width(), 640 - potato_img.get_width())
 
-        #collision
-        if collision(playerHitbox, hitbox):
-            print("Collision detected!")
-            imageY += 1000
-            if(imageY >= 1000):
-                #make location of potato
-                imageY = 0
-                imageX = random.randint(1, 600)
+                    score += 1
+                    speed += 0.25
 
-                score += 1
-                speed += 0.25
+            #item goes off screen
+            if(imageY >= 800):
+                    #make location of potato
+                    # imageY = 0
+                    # imageX = random.randint(1, 630)
 
-        #item goes off screen
-        if(imageY >= 800):
-                #make location of potato
-                imageY = 0
-                imageX = random.randint(1, 600)
-
-        
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_q:
                     running = False
-        
-        pygame.display.flip()
+                    continue
 
-        clock.tick(60)
 
-    pygame.quit()
+            for event in pygame.event.get():
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_q:
+                        running = False
+                        ending = True
+                        break
 
+            pygame.display.flip()
+            if ending == False: clock.tick(60)
+
+        while ending == False:
+            screen.fill((255, 255, 255))
+
+            gameOverDisplay = font.render("GAME OVER", True, (0, 255, 0))
+            screen.blit(gameOverDisplay, (300, 400))
+            displayScore = font.render("Final Score: " + str(score), True, (0,255,0))
+            screen.blit(displayScore, (300, 500))
+            quitButtonText = font.render("Press q to Quit", True, (0, 255, 0))
+            screen.blit(quitButtonText, (300, 600))
+
+            pygame.event.get()
+            pygame.display.flip()
+            clock.tick(60)
+
+            for event in pygame.event.get():
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_q:
+                        running = False
+                        ending = True
+                        break
+
+        pygame.quit()
+
+
+t1 = threading.Thread(target=GameThread, args=[])
 
 def ServerThread():
     global playerY
     global playerX
+
+    global conn
+    global address
+    global t1
+
     # get the hostname
     host = socket.gethostbyname(socket.gethostname())
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -153,6 +177,8 @@ def ServerThread():
     server_socket.listen(2)
     conn, address = server_socket.accept()  # accept new connection
     print("Connection from: " + str(address))    
+    if conn != -1 and address != -1:
+        t1.start()
     while True:        
         # receive data stream. it won't accept data packet greater than 1024 bytes
         data = conn.recv(1024).decode()
@@ -169,10 +195,10 @@ def ServerThread():
             playerX -= 10 * speed
         if(data == 'd'):
             playerX += 10 * speed
+        if(data == 'q'):
+            break
+    print("Server disabled")
     conn.close()  # close the connection
 
-
-t1 = threading.Thread(target=GameThread, args=[])
 t2 = threading.Thread(target=ServerThread, args=[])
-t1.start()
 t2.start()
