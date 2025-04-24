@@ -52,7 +52,7 @@ def GameThread():
         font = pygame.font.Font(None, size = 30)
 
         # position of falling item
-        imageX = random.randint(1, 630)
+        imageX = random.randint(-35, 545)
         imageY = 0
         
         bg = pygame.image.load("potatosBG.jpg")
@@ -65,10 +65,6 @@ def GameThread():
             #background
             screen.fill((255,255,255))
             screen.blit(bg,(0,0))
-            
-            #displays score
-            displayScore = font.render("Score: " + str(score), True, (0,255,0))
-            screen.blit(displayScore, (300,100))
 
             #put image on screen
             screen.blit(potato_img, (imageX, imageY))
@@ -78,6 +74,10 @@ def GameThread():
             #put player on screen
             player.center = (playerX, playerY)
             #pygame.draw.rect(screen, playerColor, player)
+
+            #displays score
+            displayScore = font.render("Score: " + str(score), True, (0,255,0))
+            screen.blit(displayScore, (300,100))
 
             #hitbox of potato
             hitbox = pygame.Rect(imageX + 35, imageY - 19, potato_img.get_width() - 70, potato_img.get_height() - 45)
@@ -129,12 +129,12 @@ def GameThread():
         while ending == False:
             screen.fill((255, 255, 255))
 
-            gameOverDisplay = font.render("GAME OVER", True, (0, 255, 0))
-            screen.blit(gameOverDisplay, (300, 400))
-            displayScore = font.render("Final Score: " + str(score), True, (0,255,0))
-            screen.blit(displayScore, (300, 500))
-            quitButtonText = font.render("Press q to Quit", True, (0, 255, 0))
-            screen.blit(quitButtonText, (300, 600))
+            gameOverDisplay = font.render("GAME OVER", True, (0, 0, 0))
+            screen.blit(gameOverDisplay, (260, 295))
+            displayScore = font.render("Final Score: " + str(score), True, (0,0,0))
+            screen.blit(displayScore, (260, 320))
+            quitButtonText = font.render("Press q to Quit", True, (0, 0, 0))
+            screen.blit(quitButtonText, (260, 345))
 
             pygame.event.get()
             pygame.display.flip()
